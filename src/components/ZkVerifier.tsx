@@ -10,7 +10,7 @@ const ZkVerifier: React.FC = () => {
   const [address, setAddress] = useState<string>('');
   const [id, setId] = useState<string>('');
   const [inputKey, setInputKey] = useState<string>('');
-  const [result, setResult] = useState<ApiResponse | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showModal,setShowModal] = useState(false);
@@ -21,17 +21,22 @@ const ZkVerifier: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setResult(null);
+    setSessionId(null);
 
     try {
       // Send POST request to the API
-      const response = await axios.post<ApiResponse>('http://localhost:8080/api/process-and-verify', {
+      const response = await axios.post<ApiResponse>('http://localhost:8080/api/verify', {
         address,
         id,
         inputString:inputKey
       });
-      setResult(response.data);
-      const encodedData = encodeURIComponent(JSON.stringify(response.data));
+      if (response.data.sessionId) {
+        setSessionId(response.data.sessionId);
+        setShowModal(true);
+      } else {
+        setError('Session ID not received');
+      }
+      
       setShowModal(true);
     } catch (err) {
       // Handle errors, including Axios errors
@@ -47,8 +52,9 @@ const ZkVerifier: React.FC = () => {
 
   const handleModalClose = () => {
     setShowModal(false);
-    const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(result), 'secret key 123').toString();
-  router.push(`/result?data=${encodeURIComponent(encryptedData)}`);
+    if (sessionId) {
+      router.push(`/result?sessionId=${encodeURIComponent(sessionId)}`);
+    }
   }
 
   return (

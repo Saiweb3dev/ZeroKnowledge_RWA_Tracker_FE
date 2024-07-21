@@ -18,6 +18,12 @@ export interface ZokratesResult {
 }
 
 export interface ApiResponse {
-  ethProcessingResult: EthProcessingResult;
-  zokProcessingResult: ZokratesResult;
+  sessionId: string;
+  message: string;
+  zokratesVerification: string;
+}
+
+export interface SessionData {
+  data: string;
+  // Add any other fields that your getData API returns
 }
