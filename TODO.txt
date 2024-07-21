@@ -1,0 +1,21 @@
+1) As for of now the transfer of data from ZKVerifier to result route is through url encryption , but need to use seperate api call for store and call for security reasons
+like  - {
+  // In ZkVerifier component
+const handleModalClose = async () => {
+  setShowModal(false);
+  const response = await axios.post('/api/store-result', result);
+  router.push(`/result?id=${response.data.id}`);
+}
+
+// In ResultPage component
+useEffect(() => {
+  const fetchData = async () => {
+    const id = searchParams.get('id');
+    if (id) {
+      const response = await axios.get(`/api/get-result?id=${id}`);
+      setData(response.data);
+    }
+  };
+  fetchData();
+}, [searchParams]);
+}
