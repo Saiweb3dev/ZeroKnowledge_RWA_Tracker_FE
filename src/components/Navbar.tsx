@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-// import ConnectButton from './ConnectButton';
+import ConnectWallet from './ConnectButton';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -23,10 +23,10 @@ const Navbar = () => {
           
           {/* Button */}
           <div className="hidden md:block">
-            <button className="bg-white text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200">
+            {/* <button className="bg-white text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200">
               Sign Up
-            </button>
-            {/* <ConnectButton/> */}
+            </button> */}
+           <ConnectWallet/>
           </div>
           
           {/* Mobile menu button */}
