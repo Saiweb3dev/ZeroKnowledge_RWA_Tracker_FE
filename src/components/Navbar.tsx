@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import ConnectWallet from './ConnectButton';
+import ConnectWallet from './wallet/ConnectButton';
 import Link from 'next/link';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +20,7 @@ const Navbar = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
             <Link href="/nft-marketplace" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">NFT Marketplace</Link>
-              <a href="#" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">About</a>
+              <Link href="/Assetverifier" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Asset Verify</Link>
             </div>
           </div>
           
