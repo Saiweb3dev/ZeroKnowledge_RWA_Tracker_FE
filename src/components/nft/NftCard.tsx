@@ -15,7 +15,7 @@ const NFTCard: FC<NFTCardProps> = ({ id, name, image, price }) => {
     <Link href={`/nft-marketplace/${id}`}>
       <div className="border rounded-lg p-4 hover:shadow-lg transition">
         <Image src={image} alt={name} width={200} height={200} />
-        <h3 className="text-lg font-semibold mt-2">{name}</h3>
+        <h3 className="text-lg text-white font-semibold mt-2">{name}</h3>
         <p className="text-gray-600">{price} ETH</p>
       </div>
     </Link>
