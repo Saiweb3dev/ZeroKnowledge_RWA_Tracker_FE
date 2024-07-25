@@ -1,7 +1,7 @@
 "use client"
 import React, { useState } from 'react';
 import axios from 'axios';
-import { ApiResponse } from '../types/api';
+import { ApiResponse } from '../../types/api';
 import VerificationCompleteModal from './VerificationModal';
 import { useRouter } from 'next/navigation';
 import CryptoJS from 'crypto-js';
@@ -53,7 +53,7 @@ const ZkVerifier: React.FC = () => {
   const handleModalClose = () => {
     setShowModal(false);
     if (sessionId) {
-      router.push(`/result?sessionId=${encodeURIComponent(sessionId)}`);
+      router.push(`/Assetverifier/result?sessionId=${encodeURIComponent(sessionId)}`);
     }
   }
 
