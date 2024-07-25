@@ -1,14 +1,16 @@
 // components/NftMintForm.tsx
 "use client";
 
-import { useState } from 'react';
-
+import { useState,useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import ConnectWallet from '../wallet/ConnectButton';
 interface NftMintFormProps {
   onSubmit: (formData: { name: string; address: string; variant: string }) => void;
   variants: string[]; // Add this line
 }
 
 const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
+  const { address, isConnected } = useAccount();
   // Initialize state for form data
   const [formData, setFormData] = useState({
     name: '',
@@ -16,12 +18,22 @@ const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
     variant: '',
   });
 
+  useEffect(() => {
+    if (address) {
+      setFormData(prevData => ({
+        ...prevData,
+        address: address
+      }));
+    }
+  }, [address]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    // Update state based on the input/select element change
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.name !== 'address') {
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -29,6 +41,14 @@ const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
     // Call the onSubmit prop with the current form data
     onSubmit(formData);
   };
+  if (!isConnected) {
+    return (
+      <div className="w-full p-8 bg-black text-white">
+        <p className="text-red-500 mb-4">Please connect your wallet to mint NFTs.</p>
+        <ConnectWallet/>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="w-full p-8 bg-black text-white">
@@ -44,15 +64,14 @@ const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
       />
     </div>
     <div className="mb-6">
-      <input
-        type="text"
-        name="address"
-        placeholder="ETH Public Address"
-        value={formData.address}
-        onChange={handleChange}
-        required
-        className="w-full p-3 bg-black border-b-2 border-white focus:outline-none focus:border-gray-300 transition-colors placeholder-gray-500 text-white"
-      />
+    <input
+  type="text"
+  name="address"
+  placeholder="ETH Public Address"
+  value={formData.address}
+  readOnly
+  className="w-full p-3 bg-black border-b-2 border-white focus:outline-none focus:border-gray-300 transition-colors placeholder-gray-500 text-white"
+/>
     </div>
     <div className="mb-8">
         <select
