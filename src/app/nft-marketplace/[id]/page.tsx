@@ -2,12 +2,16 @@
 "use client"
 
 import Image from 'next/image';
-import { fetchData } from '@/utils/api';
+import { fetchData,postData } from '@/utils/api';
 import { useEffect, useState } from 'react';
 import { NFTD } from '@/types/nft';
 import NftMintForm from '@/components/nft/NftMintForm';
+import { useAccount, useSignMessage } from 'wagmi'
 
 export default function NFTDetails({ params }: { params: { id: string } }) {
+
+  const { signMessage } = useSignMessage()
+
   // State for NFT description, loading status, and error handling
   const [nftDescription, setNftDescription] = useState<NFTD | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,10 +37,26 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
   }, [params.id]); // Added params.id as a dependency
 
   // Handler for mint form submission
-  const handleMintSubmit = (formData: { name: string; address: string; variant: string }) => {
-    console.log("Submitting form data:", formData);
-    // TODO: Implement API call to submit the form data
-    // For example: submitMintFormData(formData);
+  const handleMintSubmit = async (formData: { name: string; address: string; variant: string }) => {
+    const signature = await signMessage({ message: 'Mint NFT' })
+
+    try {
+      const updatedFormData = {
+        ...formData,
+        carName:nftDescription?.name,
+        mintedPrice:nftDescription?.price,
+        signature
+      };
+      
+      // Call postData with the endpoint and form data
+     const response = await postData('/nft/mintNFT', updatedFormData);
+      console.log('Minting successful',response);
+      console.log("Submitting form data:", updatedFormData);
+      // Handle success, e.g., show a success message
+    } catch (error) {
+      console.error('Failed to mint NFT:', error);
+      // Handle error, e.g., show an error message
+    }
   };
 
   // Loading state
