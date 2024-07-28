@@ -1,11 +1,12 @@
 // components/NFTDetails.tsx
-import { NFTD } from '@/types/nft';
+import { NFTD,Variant } from '@/types/nft';
 
 interface NFTDetailsProps {
   nftDescription: NFTD;
 }
 
 const NFTDetails: React.FC<NFTDetailsProps> = ({ nftDescription }) => {
+  console.log(nftDescription)
   return (
     <div className="w-full p-6">
       <h1 className="text-3xl font-bold mb-4">{nftDescription.name}</h1>
@@ -13,9 +14,11 @@ const NFTDetails: React.FC<NFTDetailsProps> = ({ nftDescription }) => {
       <p className="mb-6 text-gray-400">{nftDescription.description}</p>
       <h2 className="text-xl font-semibold mb-2">Variants:</h2>
       <ul className="list-disc pl-5 text-gray-400">
-        {nftDescription.variants.map((variant, index) => (
-          <li key={index}>{variant.name}</li>
-        ))}
+      {nftDescription.variants.map((variant, index) => (
+            <li className='text-white' key={index}>
+              {typeof variant === 'string' ? variant : JSON.stringify(variant)}
+            </li>
+          ))}
       </ul>
     </div>
   );

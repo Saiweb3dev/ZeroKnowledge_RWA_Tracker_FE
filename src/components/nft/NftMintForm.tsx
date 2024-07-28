@@ -4,9 +4,10 @@
 import { useState,useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import ConnectWallet from '../wallet/ConnectButton';
+import { Variant } from '@/types/nft';
 interface NftMintFormProps {
   onSubmit: (formData: { name: string; address: string; variant: string }) => void;
-  variants: string[]; // Add this line
+  variants: Variant[]; // Add this line
 }
 
 const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
@@ -83,8 +84,8 @@ const NftMintForm: React.FC<NftMintFormProps> = ({ onSubmit, variants }) => {
         >
           <option value="" disabled>Select Variant</option>
           {variants.map((variant, index) => (
-            <option key={index} value={variant}>
-              {variant}
+            <option key={index} value={JSON.stringify(variant)}>
+             {typeof variant === 'string' ? variant : JSON.stringify(variant)}
             </option>
           ))}
         </select>

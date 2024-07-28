@@ -1,3 +1,4 @@
+"use client"
 // Import necessary components, types, and utilities at the top
 import NftMintForm from "@/components/nft/NftMintForm";
 import { MintResponse, NFTD } from "@/types/nft";
@@ -118,7 +119,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
           <div className="w-full md:w-1/2 p-4">
             <NftMintForm
               onSubmit={handleMintSubmit}
-              variants={(nftDescription?.variants || []).map(variant => variant.name)} // Map through NFT variants
+              variants={(nftDescription?.variants || [])} // Map through NFT variants
             />
           </div>
         </div>
