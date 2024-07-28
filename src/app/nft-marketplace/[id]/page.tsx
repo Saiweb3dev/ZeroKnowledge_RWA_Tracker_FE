@@ -1,113 +1,129 @@
-// app/nft-marketplace/[id]/page.tsx
-"use client"
+// Import necessary components, types, and utilities at the top
+import NftMintForm from "@/components/nft/NftMintForm";
+import { MintResponse, NFTD } from "@/types/nft";
+import { postData } from "@/utils/api";
+import { ethers } from "ethers";
+import Image from "next/image";
+import { useState } from "react";
+import { useSignMessage } from "wagmi";
+import useFetchNFTDescription from "@/hooks/useFetchNFTDescription";
+import NFTDetailsComp from "@/components/nft/NFTDetails";
 
-import Image from 'next/image';
-import { fetchData,postData } from '@/utils/api';
-import { useEffect, useState } from 'react';
-import { NFTD } from '@/types/nft';
-import NftMintForm from '@/components/nft/NftMintForm';
-import { useAccount, useSignMessage } from 'wagmi'
-
+// Define the component that displays NFT details and allows users to mint an NFT
 export default function NFTDetails({ params }: { params: { id: string } }) {
+  const { signMessageAsync } = useSignMessage(); // Hook for signing messages
 
-  const { signMessage } = useSignMessage()
+  // Fetch NFT description asynchronously
+  const { nftDescription, loading, error } = useFetchNFTDescription(params.id);
+  
+  const [minting, setMinting] = useState(false); // State to track if minting process is ongoing
 
-  // State for NFT description, loading status, and error handling
-  const [nftDescription, setNftDescription] = useState<NFTD | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Function to fetch asset description
-  const fetchAssetDescription = () => fetchData(`/nft/getAssetDescription/${params.id}`);
-
-  // Effect hook to load asset description on component mount
-  useEffect(() => {
-    async function loadAssetDescription() {
-      try {
-        const data = await fetchAssetDescription();
-        setNftDescription(data as NFTD);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load asset description.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAssetDescription();
-  }, [params.id]); // Added params.id as a dependency
-
-  // Handler for mint form submission
-  const handleMintSubmit = async (formData: { name: string; address: string; variant: string }) => {
-    const signature = await signMessage({ message: 'Mint NFT' })
-
+  // Function to handle the submission of the mint form
+  const handleMintSubmit = async (formData: {
+    name: string;
+    address: string;
+    variant: string;
+  }) => {
     try {
+      // Sign a message to verify the user's intent to mint an NFT
+      const signature = await signMessageAsync({ message: "Mint NFT" });
+
+      // Prepare the data to send to the backend, including the signature and additional NFT details
       const updatedFormData = {
         ...formData,
-        carName:nftDescription?.name,
-        mintedPrice:nftDescription?.price,
-        signature
+        carName: nftDescription?.name ?? '', // Default values for missing properties
+        mintedPrice: nftDescription?.price ?? 0,
+        signature,
       };
+
+      // Send the prepared data to the backend to initiate the minting process
+      const responseRaw = await postData("/nft/mintNFT", updatedFormData);
       
-      // Call postData with the endpoint and form data
-     const response = await postData('/nft/mintNFT', updatedFormData);
-      console.log('Minting successful',response);
-      console.log("Submitting form data:", updatedFormData);
-      // Handle success, e.g., show a success message
+      //Type convertion
+      const response: MintResponse = responseRaw as MintResponse;
+      console.log('API response:', response);
+
+
+
+      // Check the backend response to determine the next steps
+      if (response.message === "Signature verified. Ready to mint.") {
+        // Initialize Ethereum provider and signer if available
+        if (typeof window.ethereum !== "undefined") {
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+
+          // Interact with the smart contract to mint the NFT
+          const contract = new ethers.Contract(response.contractAddress, response.contractABI, signer);
+          try {
+            const tx = await contract.safeMint(
+              await signer.getAddress(),
+              response.tokenURI,
+              { gasLimit: ethers.utils.hexlify(1000000) } // Manual gas limit
+            );
+            console.log("Transaction sent:", tx.hash);
+
+            // Wait for the transaction to be mined
+            await tx.wait();
+            console.log("NFT minted successfully!");
+          } catch (err) {
+            console.error("Error minting NFT:", err);
+            console.log("Failed to mint NFT. Please try again.");
+          }
+        } else {
+          console.log("Ethereum provider not found. Please install MetaMask.");
+        }
+      } else {
+        console.error('Unexpected server response:', response);
+        throw new Error(`Failed to prepare for minting: ${response.message || 'Unknown error'}`);
+      }
     } catch (error) {
-      console.error('Failed to mint NFT:', error);
-      // Handle error, e.g., show an error message
+      console.error("Failed to mint NFT:", error);
     }
   };
 
-  // Loading state
+  // Conditional rendering based on the fetch status
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        Loading...
+      </div>
+    );
   }
 
-  // Error state
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center bg-black text-white">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        {error}
+      </div>
+    );
   }
 
-  // Render NFT details
+  // Render the NFT details and minting form
   return (
     <div className="min-h-screen w-full bg-black text-white flex items-center justify-center p-4">
       <div className="max-w-4xl w-full bg-black rounded-lg shadow-xl overflow-hidden border flex flex-col">
-        {/* Top section: Image and Form */}
         <div className="flex flex-col md:flex-row">
-          {/* Left: NFT Image */}
           <div className="w-full md:w-1/2 p-4">
             <div className="relative h-64 md:h-80">
-              <Image 
-                src={nftDescription?.image || ''} 
-                alt={nftDescription?.name || 'NFT Image'} 
-                layout="fill" 
+              <Image
+                src={nftDescription?.image || ""}
+                alt={nftDescription?.name || "NFT Image"}
+                layout="fill"
                 objectFit="cover"
               />
             </div>
           </div>
 
-          {/* Right: Minting Form */}
           <div className="w-full md:w-1/2 p-4">
-            <NftMintForm 
-              onSubmit={handleMintSubmit} 
-              variants={nftDescription?.variants || []} 
+            <NftMintForm
+              onSubmit={handleMintSubmit}
+              variants={(nftDescription?.variants || []).map(variant => variant.name)} // Map through NFT variants
             />
           </div>
         </div>
 
-        {/* Bottom section: NFT Details */}
-        <div className="w-full p-6">
-          <h1 className="text-3xl font-bold mb-4">{nftDescription?.name}</h1>
-          <p className="text-2xl mb-4 text-gray-300">{nftDescription?.price} ETH</p>
-          <p className="mb-6 text-gray-400">{nftDescription?.description}</p>
-          <h2 className="text-xl font-semibold mb-2">Variants:</h2>
-          <ul className="list-disc pl-5 text-gray-400">
-            {nftDescription?.variants.map((variant, index) => (
-              <li key={index}>{variant}</li>
-            ))}
-          </ul>
-        </div>
+        <NFTDetailsComp nftDescription={nftDescription!} /> {/* Pass NFT details to the component */}
       </div>
     </div>
   );
