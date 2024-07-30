@@ -17,7 +17,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
   // Fetch NFT description asynchronously
   const { nftDescription, loading, error } = useFetchNFTDescription(params.id);
   
-  const [minting, setMinting] = useState(false); // State to track if minting process is ongoing
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Function to handle the submission of the mint form
   const handleMintSubmit = async (formData: {
@@ -37,6 +37,8 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
         signature,
       };
 
+      console.log("Data sent to server ----> ",updatedFormData)
+
       // Send the prepared data to the backend to initiate the minting process
       const responseRaw = await postData("/nft/mintNFT", updatedFormData);
       
@@ -44,13 +46,13 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
       const response: MintResponse = responseRaw as MintResponse;
       console.log('API response:', response);
 
-
-
       // Check the backend response to determine the next steps
       if (response.message === "Signature verified. Ready to mint.") {
+        
         // Initialize Ethereum provider and signer if available
         if (typeof window.ethereum !== "undefined") {
           await window.ethereum.request({ method: "eth_requestAccounts" });
+          
           const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = provider.getSigner();
 
@@ -63,7 +65,8 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
               { gasLimit: ethers.utils.hexlify(1000000) } // Manual gas limit
             );
             console.log("Transaction sent:", tx.hash);
-
+          console.log("Minted Address ---> ",await signer.getAddress())
+          console.log("URI sent to contract ---> ",response.tokenURI)
             // Wait for the transaction to be mined
             await tx.wait();
             console.log("NFT minted successfully!");
@@ -82,6 +85,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
       console.error("Failed to mint NFT:", error);
     }
   };
+
 
   // Conditional rendering based on the fetch status
   if (loading) {
@@ -124,7 +128,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <NFTDetailsComp nftDescription={nftDescription!} /> {/* Pass NFT details to the component */}
+        <NFTDetailsComp nftDescription={nftDescription!} /> 
       </div>
     </div>
   );
