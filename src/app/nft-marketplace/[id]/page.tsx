@@ -24,6 +24,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
     name: string;
     address: string;
     variant: string;
+    key:string;
   }) => {
     try {
       // Sign a message to verify the user's intent to mint an NFT
