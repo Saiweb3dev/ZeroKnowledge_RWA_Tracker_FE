@@ -49,35 +49,7 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
 
       // Check the backend response to determine the next steps
       if (response.message === "Signature verified. Ready to mint.") {
-        
-        // Initialize Ethereum provider and signer if available
-        if (typeof window.ethereum !== "undefined") {
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const signer = provider.getSigner();
-
-          // Interact with the smart contract to mint the NFT
-          const contract = new ethers.Contract(response.contractAddress, response.contractABI, signer);
-          try {
-            const tx = await contract.safeMint(
-              await signer.getAddress(),
-              response.tokenURI,
-              { gasLimit: ethers.utils.hexlify(1000000) } // Manual gas limit
-            );
-            console.log("Transaction sent:", tx.hash);
-          console.log("Minted Address ---> ",await signer.getAddress())
-          console.log("URI sent to contract ---> ",response.tokenURI)
-            // Wait for the transaction to be mined
-            await tx.wait();
-            console.log("NFT minted successfully!");
-          } catch (err) {
-            console.error("Error minting NFT:", err);
-            console.log("Failed to mint NFT. Please try again.");
-          }
-        } else {
-          console.log("Ethereum provider not found. Please install MetaMask.");
-        }
+        await mintNFT(response);
       } else {
         console.error('Unexpected server response:', response);
         throw new Error(`Failed to prepare for minting: ${response.message || 'Unknown error'}`);
@@ -87,6 +59,64 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
     }
   };
 
+  const mintNFT = async (response: MintResponse) => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+
+          const contract = new ethers.Contract(response.contractAddress, response.contractABI, signer);
+          
+          const tx = await contract.safeMint(
+              await signer.getAddress(),
+              response.tokenURI,
+              { gasLimit: ethers.utils.hexlify(1000000) }
+          );
+          console.log("Transaction sent:", tx.hash);
+          console.log("Minted Address ---> ", await signer.getAddress());
+          console.log("URI sent to contract ---> ", response.tokenURI);
+          
+          // Wait for the transaction to be mined
+          const receipt = await tx.wait();
+          console.log("NFT minted successfully!");
+
+          // Extract event data
+          const event = receipt.events?.find((e:any) => e.event === "AssetMinted");
+          if (event) {
+              const [tokenId, to, tokenURI] = event.args;
+              
+              // Second API call to update backend with minting results
+              await updateMintingData({
+                  tokenId: tokenId.toString(),
+                  address: to,
+                  tokenURI,
+                  txHash: receipt.transactionHash
+              });
+          } else {
+              console.error("AssetMinted event not found in transaction receipt");
+          }
+      } catch (err) {
+          console.error("Error minting NFT:", err);
+          console.log("Failed to mint NFT. Please try again.");
+      }
+  } else {
+      console.log("Ethereum provider not found. Please install MetaMask.");
+  }
+  }
+  const updateMintingData = async (mintingData: {
+    tokenId: string;
+    address: string;
+    tokenURI: string;
+    txHash: string;
+}) => {
+    try {
+        const response = await postData("/nft/updateMintingData", mintingData);
+        console.log("Minting data update response:", response);
+    } catch (error) {
+        console.error("Failed to update minting data:", error);
+    }
+};
 
   // Conditional rendering based on the fetch status
   if (loading) {
