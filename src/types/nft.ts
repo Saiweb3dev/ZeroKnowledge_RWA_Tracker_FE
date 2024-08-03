@@ -32,6 +32,7 @@ export interface MintData {
 }
 
 export interface MintResponse {
+  key:string;
   message: string;
   contractAddress: string;
   contractABI: any[]; // Consider specifying a more precise type for contractABI
