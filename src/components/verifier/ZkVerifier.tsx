@@ -58,7 +58,7 @@ const ZkVerifier: React.FC = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-36 p-6 bg-white rounded-lg shadow-xl ">
+    <div className="max-w-md mx-auto px-6 py-12 bg-white rounded-lg shadow-xl ">
       <h1 className="text-2xl text-black font-bold mb-6">ZkVerifier</h1>
   <form onSubmit={handleSubmit} className="space-y-6">
     {/* Input field for Ethereum address */}
@@ -73,7 +73,7 @@ const ZkVerifier: React.FC = () => {
         onChange={(e) => setAddress(e.target.value)}
         required
         className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                   focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                   focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
         placeholder="0x..."
       />
     </div>
@@ -90,7 +90,7 @@ const ZkVerifier: React.FC = () => {
         onChange={(e) => setId(e.target.value)}
         required
         className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                   focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                   focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
         placeholder="Enter ID"
       />
     </div>
@@ -107,7 +107,7 @@ const ZkVerifier: React.FC = () => {
         onChange={(e) => setInputKey(e.target.value)}
         required
         className="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                   focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                   focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
         placeholder="Enter input key"
       />
     </div>
@@ -116,7 +116,7 @@ const ZkVerifier: React.FC = () => {
     <button
       type="submit"
       disabled={loading}
-      className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+      className="w-full px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-150 ease-in-out"
     >
       {loading ? (
         <span className="flex items-center justify-center">
