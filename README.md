@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ZK_RWA_Tracker Frontend Documentation
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+ZK_RWA_Tracker is a platform that utilizes zero-knowledge proofs to verify real-world assets. The frontend interacts with smart contracts for NFT minting and asset verification, while the backend handles the verification process.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Core Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. NFT Marketplace
+2. Asset Verification
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Navigation
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The frontend consists of two main navigation buttons:
 
-## Learn More
+1. NFT Marketplace
+2. Verify Asset
 
-To learn more about Next.js, take a look at the following resources:
+### NFT Marketplace
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The NFT Marketplace section allows users to:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Browse available NFTs representing verified real-world assets
+- Purchase NFTs using the deployed smart contract
+- View detailed information about each NFT and its corresponding asset
 
-## Deploy on Vercel
+### Verify Asset
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The Verify Asset section enables users to:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Submit asset details for verification
+- Interact with the backend to process zero-knowledge proofs
+- Receive detailed information about the verified asset
+
+## Technical Stack
+
+Next.js, Typescript , TailwindCSS
+
+## Smart Contract Integration
+
+The frontend interacts with the deployed smart contract for:
+
+- Fetching available NFTs
+- Handling NFT purchases
+- Minting new NFTs upon successful asset verification
+
+## Backend Integration
+
+The frontend communicates with the backend for:
+
+- Submitting asset details for verification
+- Receiving verification results
+- Retrieving detailed asset information
+
+## User Flow
+
+1. User navigates to the ZK_RWA_Tracker platform
+2. User chooses between NFT Marketplace and Verify Asset
+3. In NFT Marketplace:
+   - Browse available NFTs
+   - Select an NFT to purchase
+   - Complete the transaction using the integrated smart contract
+4. In Verify Asset:
+   - Submit asset details for verification
+   - Wait for the backend to process the zero-knowledge proof
+   - Receive verification results and detailed asset information
+
