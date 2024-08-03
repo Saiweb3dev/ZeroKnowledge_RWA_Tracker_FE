@@ -1,5 +1,6 @@
 "use client";
 // Import necessary components, types, and utilities at the top
+import MintSuccessModal from "@/components/nft/MintModal";
 import NFTDetailsComp from "@/components/nft/NFTDetails";
 import NftMintForm from "@/components/nft/NftMintForm";
 import useFetchNFTDescription from "@/hooks/useFetchNFTDescription";
@@ -7,6 +8,8 @@ import { MintResponse } from "@/types/nft";
 import { postData } from "@/utils/api";
 import { ethers } from "ethers";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useSignMessage } from "wagmi";
 
 // Define the component that displays NFT details and allows users to mint an NFT
@@ -15,6 +18,14 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
 
   // Fetch NFT description asynchronously
   const { nftDescription, loading, error } = useFetchNFTDescription(params.id);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mintDetails, setMintDetails] = useState({
+    tokenId: "",
+    to: "",
+    tokenURI: "",
+  });
+  const router = useRouter();
 
   // Function to handle the submission of the mint form
   const handleMintSubmit = async (formData: {
@@ -101,6 +112,10 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
             tokenURI,
             txHash: receipt.transactionHash,
           });
+          // Inside the mintNFT function, after extracting tokenId, to, tokenURI
+          console.log("data sent to modal --> ",tokenId,to,tokenURI)
+          setMintDetails({ tokenId, to, tokenURI });
+          setIsModalOpen(true);
         } else {
           console.error("AssetMinted event not found in transaction receipt");
         }
@@ -168,6 +183,16 @@ export default function NFTDetails({ params }: { params: { id: string } }) {
         </div>
 
         <NFTDetailsComp nftDescription={nftDescription!} />
+        <MintSuccessModal
+          isOpen={isModalOpen}
+          tokenId={mintDetails.tokenId}
+          to={mintDetails.to}
+          tokenURI={mintDetails.tokenURI}
+          onClose={() => {
+            setIsModalOpen(false);
+            router.push("/"); // Navigate to homepage
+          }}
+        />
       </div>
     </div>
   );

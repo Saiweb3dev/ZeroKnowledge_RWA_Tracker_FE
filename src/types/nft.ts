@@ -39,3 +39,12 @@ export interface MintResponse {
   data: MintData; // Using the MintData interface for the data field
   tokenURI: string;
 }
+
+export interface MintSuccessModalProps {
+  isOpen: boolean;
+  tokenId: string | object; // Allow tokenId to be either a string or an object
+  to: string;
+  tokenURI: string;
+  onClose: () => void;
+}
+
