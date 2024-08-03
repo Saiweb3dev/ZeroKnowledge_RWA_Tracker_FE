@@ -24,6 +24,12 @@ export interface ApiResponse {
 }
 
 export interface SessionData {
-  data: string;
-  // Add any other fields that your getData API returns
+
+    name: string;
+    carName: string;
+    variant: string;
+    address: string;
+    mintedPrice: number;
+    signature: string;
+    // Add any other fields that your getData API returns
 }
